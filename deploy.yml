@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  labels:
+    app: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: index.docker.io/taestarn/backend
+        ports:
+        - name: backend-port
+          containerPort: 4000
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 4000
+          initialDelaySeconds: 15
+          timeoutSeconds: 30
+      imagePullSecrets:
+      - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: backend-service
+spec:
+  ports:
+  - port: 80
+    targetPort: backend-port
+    protocol: TCP
+  selector:
+    app: backend
+  type: LoadBalancer
+# comit
